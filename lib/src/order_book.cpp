@@ -1,6 +1,11 @@
 #include <algorithm>
 #include "orders/order_book.hpp"
 
+OrderBook::OrderBook()
+{
+	resolver_.reserve(812);
+}
+
 OrderId OrderBook::Insert(const Order& o)
 {
 	OrderId id = GenerateID(o);

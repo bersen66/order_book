@@ -13,7 +13,7 @@ private:
 	using OrderListIter = std::list<Order>::iterator;
 public:
 
-	OrderBook() = default;
+	OrderBook();
 	OrderBook(OrderBook&& other) = default;
 	OrderBook(const OrderBook&) = delete;
 	OrderBook& operator=(const OrderBook&) = delete;

@@ -24,7 +24,9 @@ struct Order {
 
 using OrderId = uint64_t;
 
+// TODO: Better id generation.
 OrderId GenerateID(const Order& o);
 
-
 std::ostream& operator<<(std::ostream& out, const Order& o);
+
+bool operator==(const Order& lhs, const Order& rhs);
