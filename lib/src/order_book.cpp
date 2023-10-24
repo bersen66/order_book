@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "orders/order_book.hpp"
 
 OrderId OrderBook::Insert(const Order& o)
@@ -73,3 +74,44 @@ OrderBook::Asks() const
 {
 	return ask_;
 }
+
+std::vector<Order> OrderBook::Top(int n) const
+{
+	std::vector<Order> result;
+	result.reserve(n);
+
+	int cnt = 0;
+	for (const auto& [p, orders]: ask_)
+	{
+		for (const auto& o: orders)
+		{
+			result.push_back(o);
+			cnt++;
+			if (cnt == n / 2)
+			{
+				goto ENDLOOP1;
+			}
+		}
+	}
+ENDLOOP1:
+	std::reverse(result.begin(), result.begin() + cnt);
+
+	cnt = 0;
+	for (const auto& [p, orders]: bid_)
+	{
+		for (const auto& o: orders)
+		{
+			result.push_back(o);
+			cnt++;
+			if (cnt == n / 2)
+			{
+				goto ENDLOOP2;
+			}
+		}
+	}
+ENDLOOP2:
+
+	return result; // NRVO
+}
+
+
