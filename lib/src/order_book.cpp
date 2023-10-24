@@ -1,52 +1,75 @@
-#include <orders/order_book.hpp>
-#include <iostream>
+#include "orders/order_book.hpp"
 
-struct OrderBookBase::Impl
+OrderId OrderBook::Insert(const Order& o)
 {
-	void Push()
+	OrderId id = GenerateID(o);
+	resolver_[id] = InsertIntoTable(o);
+	return id;
+}
+
+void OrderBook::Update(OrderId id, const Order& updated)
+{
+	OrderListIter it = resolver_.at(id);
+	if (updated.price == it->price && updated.type == it->type)
 	{
-		std::cout << "Push" << std::endl;
+		it->amount = updated.amount;
+		return;
 	}
 
-	void Pop()
+	EraseFromMap(it);
+	resolver_[id] = InsertIntoTable(updated);
+}
+
+const Order& OrderBook::Get(OrderId id) const
+{
+	return *resolver_.at(id);
+}
+
+void OrderBook::Erase(OrderId id)
+{
+	EraseFromMap(resolver_.at(id));
+	resolver_.erase(id);
+}
+
+inline OrderBook::OrderListIter OrderBook::InsertIntoTable(const Order& o)
+{
+	OrderList& orders = (o.type == Order::Type::BID ? bid_[o.price]
+	                                                : ask_[o.price]);
+	orders.push_back(o);
+	return std::prev(orders.end());
+}
+
+void OrderBook::EraseFromMap(OrderBook::OrderListIter it)
+{
+	Currency prev_price = it->price;
+
+	if (it->type == Order::Type::BID)
 	{
-		std::cout << "Pop" << std::endl;
+		bid_[prev_price].erase(it);
+		if (bid_[prev_price].empty())
+		{
+			bid_.erase(prev_price);
+		}
+	}
+	else
+	{
+		ask_[prev_price].erase(it);
+		if (ask_[prev_price].empty())
+		{
+			ask_.erase(prev_price);
+		}
 	}
 
-	void Flush(std::ostream& out)
-	{
-		out << "Amogus" << std::endl;
-	}
-};
-
-OrderBookBase::OrderBookBase()
-		: pImpl(new Impl)
-{}
-
-OrderBookBase::~OrderBookBase()
-{
-	delete pImpl;
 }
 
-void OrderBookBase::Push()
+const std::map<Currency, OrderBook::OrderList, std::greater<>>&
+OrderBook::Bids() const
 {
-	pImpl->Push();
+	return bid_;
 }
 
-void OrderBookBase::Pop()
+const std::map<Currency, OrderBook::OrderList, std::less<>>&
+OrderBook::Asks() const
 {
-	pImpl->Pop();
+	return ask_;
 }
-
-void OrderBookBase::Flush(std::ostream& out) const
-{
-	pImpl->Flush(out);
-}
-
-OrderBookBase::OrderBookBase(OrderBookBase&& other)
-	: pImpl(other.pImpl)
-{
-	other.pImpl = nullptr;
-}
-
-

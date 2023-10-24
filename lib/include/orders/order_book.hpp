@@ -1,46 +1,36 @@
 #pragma once
 
-#include <ostream> // std::ostream
-#include <memory> // for std::unique_ptr
 
+#include <orders/order.hpp>
+#include <map>
+#include <list>
+#include <unordered_map>
 
-// pimpl idiom
-class OrderBookBase
-{
-protected:
-	void Push();
-
-	void Pop();
-
-	void Flush(std::ostream& out) const;
-
-public:
-	OrderBookBase();
-
-	virtual ~OrderBookBase();
-
-	OrderBookBase(const OrderBookBase&) = delete;
-	OrderBookBase& operator=(const OrderBookBase&) = delete;
-	OrderBookBase(OrderBookBase&& other) noexcept;
+class OrderBook {
 private:
-	struct Impl;
-	Impl* pImpl;
-};
+	using OrderList = std::list<Order>;
+	using OrderListIter = std::list<Order>::iterator;
+public:
 
-struct OrderBook : private OrderBookBase
-{
-	void Push()
-	{
-		OrderBookBase::Push();
-	}
+	OrderId Insert(const Order& o);
 
-	void Pop()
-	{
-		OrderBookBase::Pop();
-	}
+	void Update(OrderId id, const Order& updated);
 
-	void Flush(std::ostream& out)
-	{
-		OrderBookBase::Flush(out);
-	}
+	const Order& Get(OrderId id) const;
+
+	void Erase(OrderId id);
+
+	const std::map<Currency, OrderList, std::greater<>>& Bids() const;
+
+	const std::map<Currency, OrderList, std::less<>>& Asks() const;
+
+private:
+	inline OrderListIter InsertIntoTable(const Order& o);
+
+	inline void EraseFromMap(OrderListIter it);
+
+private:
+	std::map<Currency, OrderList, std::greater<>> bid_;
+	std::map<Currency, OrderList, std::less<>> ask_;
+	std::unordered_map<OrderId, OrderListIter> resolver_;
 };

@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdint>
+#include <ostream>
 
 
 // Мы не можем использовать тип float или double.
@@ -20,3 +21,10 @@ struct Order {
 	Currency price;
 	Amount amount;
 };
+
+using OrderId = uint64_t;
+
+OrderId GenerateID(const Order& o);
+
+
+std::ostream& operator<<(std::ostream& out, const Order& o);

@@ -1,2 +1,2 @@
-add_executable(ex main.cpp)
-target_link_libraries(ex orderbook)
+add_executable(ortests main.cpp)
+target_link_libraries(ortests orders)
