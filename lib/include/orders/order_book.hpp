@@ -14,8 +14,11 @@ private:
 public:
 
 	OrderBook();
+
 	OrderBook(OrderBook&& other) = default;
+
 	OrderBook(const OrderBook&) = delete;
+
 	OrderBook& operator=(const OrderBook&) = delete;
 
 	OrderId Insert(const Order& o);
@@ -31,6 +34,12 @@ public:
 	const std::map<Currency, OrderList, std::greater<>>& Bids() const;
 
 	const std::map<Currency, OrderList, std::less<>>& Asks() const;
+
+	[[nodiscard]] bool Empty() const noexcept;
+
+	std::size_t Size() const noexcept;
+
+	bool Contains(OrderId id) const;
 
 private:
 	inline OrderListIter InsertIntoTable(const Order& o);

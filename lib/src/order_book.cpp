@@ -119,4 +119,19 @@ ENDLOOP2:
 	return result; // NRVO
 }
 
+bool OrderBook::Empty() const noexcept
+{
+	return bid_.empty() && ask_.empty() && resolver_.empty();
+}
+
+std::size_t OrderBook::Size() const noexcept
+{
+	return resolver_.size();
+}
+
+bool OrderBook::Contains(OrderId id) const
+{
+	return resolver_.find(id) != resolver_.end();
+}
+
 
