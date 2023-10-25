@@ -68,13 +68,13 @@ void OrderBook::EraseFromMap(OrderBook::OrderListIter it)
 
 }
 
-const std::map<Currency, OrderBook::OrderList, std::greater<>>&
+const std::map<Currency, OrderBook::OrderList, std::greater<Currency>>&
 OrderBook::Bids() const
 {
 	return bid_;
 }
 
-const std::map<Currency, OrderBook::OrderList, std::less<>>&
+const std::map<Currency, OrderBook::OrderList, std::less<Currency>>&
 OrderBook::Asks() const
 {
 	return ask_;
