@@ -1,4 +1,5 @@
 #pragma once
+
 #include <cstdint>
 #include <ostream>
 
@@ -14,8 +15,8 @@ using Amount = std::uint64_t;
 
 struct Order {
 	enum class Type {
-		BID,
-		ASK,
+		ASK = 0,
+		BID = 1,
 	};
 	Type type;
 	Currency price;
