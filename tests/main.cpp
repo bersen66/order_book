@@ -34,45 +34,6 @@ Order RandomAsk()
 	return res;
 }
 
-OrderBook ob;
-void InsertBenchmark()
-{
-	ob.Insert(RandomOrder());
-}
-
-void EraseBenchmark()
-{
-	static OrderId id = 0;
-	ob.Erase(id++);
-}
-
-void UpdateBenchmark()
-{
-	static OrderId id = 0;
-	ob.Update(id++, RandomOrder());
-}
-
-void TopBenchmark()
-{
-	ob.Top(10);
-}
-
-void TestBasic()
-{
-	OrderBook o;
-	ASSERT(o.Empty(), "Must be empty");
-	auto order = RandomOrder();
-	OrderId id = o.Insert(order);
-	ASSERT(o.Contains(id), "Must contain order");
-	ASSERT_EQUAL(o.Get(id), order);
-	order = RandomOrder();
-	o.Update(id, order);
-	ASSERT_EQUAL(o.Get(id), order);
-	o.Erase(id);
-	ASSERT(!o.Contains(id), "Must contain order");
-	ASSERT(o.Empty(), "Must be empty");
-}
-
 std::vector<Order> GenerateCorrectTop(int n = 10)
 {
 	std::vector<Order> result;
@@ -107,15 +68,16 @@ std::vector<Order> GenerateCorrectTop(int n = 10)
 	return result;
 }
 
+template<typename OrderBookType>
 void TestTop()
 {
 	int n = 10;
 	auto expected = GenerateCorrectTop(n);
-	OrderBook o;
+	OrderBookType o;
 	ASSERT(o.Empty(), "Must be empty");
 	for (const auto& order: expected)
 	{
-		auto id = o.Insert(order);
+		OrderId id = o.Insert(order);
 		ASSERT(o.Contains(id), "OrderBook must contain order");
 		ASSERT_EQUAL(order, o.Get(id));
 	}
@@ -129,20 +91,96 @@ void TestTop()
 
 }
 
+template<typename OrderBookType>
+void TestBasic()
+{
+	OrderBookType o;
+	ASSERT(o.Empty(), "Must be empty");
+	auto order = RandomOrder();
+	OrderId id = o.Insert(order);
+	ASSERT(o.Contains(id), "Must contain order");
+	ASSERT_EQUAL(o.Get(id), order);
+	order = RandomOrder();
+	o.Update(id, order);
+	ASSERT_EQUAL(o.Get(id), order);
+	o.Erase(id);
+	ASSERT(!o.Contains(id), "Must contain order");
+	ASSERT(o.Empty(), "Must be empty");
+}
+
+
+namespace bench
+{
+	OrderBookPtr global_bench;
+
+	template<typename OrderBookType>
+	void SetUpGlobalBench() {
+		global_bench = MakeOrderBook<OrderBookType>();
+	}
+
+	void InsertBenchmark()
+	{
+		global_bench->Insert(RandomOrder());
+	}
+
+	void EraseBenchmark()
+	{
+		static OrderId id = 0;
+		global_bench->Erase(id++);
+	}
+
+	void UpdateBenchmark()
+	{
+		static OrderId id = 0;
+		global_bench->Update(id++, RandomOrder());
+	}
+
+	void TopBenchmark()
+	{
+		global_bench->Top(10);
+	}
+
+} // namespace bench
+
+template<typename OrderBookType>
+class Tester {
+public:
+	Tester() {
+		bench::SetUpGlobalBench<OrderBookType>();
+	}
+
+	void Test()
+	{
+		RUN_TEST(tr_, TestBasic<OrderBookType>);
+		RUN_TEST(tr_, TestTop<OrderBookType>);
+	}
+
+	void Benchmark()
+	{
+		RUN_BENCHMARK(RandomOrder)
+		bench::global_bench = MakeOrderBook<OrderBookType>();
+		RUN_BENCHMARK(bench::InsertBenchmark);
+		RUN_BENCHMARK(bench::UpdateBenchmark);
+		RUN_BENCHMARK(bench::TopBenchmark);
+		RUN_BENCHMARK(bench::EraseBenchmark);
+		std::cerr << std::endl;
+	}
+
+	void Run()
+	{
+		std::cerr << "Benchmarks:" << std::endl;
+		Benchmark();
+		std::cerr << "Tests:" << std::endl;
+		Test();
+	}
+
+private:
+	TestRunner tr_;
+};
+
 int main()
 {
-	std::cerr << "Benchmarks:" << std::endl;
-	RUN_BENCHMARK(RandomOrder)
-	RUN_BENCHMARK(InsertBenchmark);
-	RUN_BENCHMARK(UpdateBenchmark);
-	RUN_BENCHMARK(TopBenchmark);
-	RUN_BENCHMARK(EraseBenchmark);
-	std::cerr << std::endl;
-
-	std::cerr << "Tests:" << std::endl;
-
-	TestRunner tr{};
-	RUN_TEST(tr, TestBasic);
-	RUN_TEST(tr, TestTop);
+	Tester<OrderBook> t;
+	t.Run();
 	return 0;
 }
