@@ -115,7 +115,7 @@ const Order& o = ob.Get(id); // Получение заказа по Id.
 
 ob.Erase(id); // Удаление заявки из стакана.
 
-for (const auto& order : ob.Top()) // Получение лучших 10 заявок.
+for (const auto& order : ob.Top(10)) // Получение лучших 10 заявок.
 {
 	std::cout << order << std::endl; 
 }
