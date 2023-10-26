@@ -1,7 +1,7 @@
 #include <random>
 #include <algorithm>
 
-#include <orders/order_book.hpp>
+#include <orders/orders.hpp>
 
 #include "profiler.hpp"
 #include "test_runner.hpp"
@@ -109,7 +109,8 @@ std::vector<Order> GenerateCorrectTop(int n = 10)
 
 void TestTop()
 {
-	auto expected = GenerateCorrectTop(10);
+	int n = 10;
+	auto expected = GenerateCorrectTop(n);
 	OrderBook o;
 	ASSERT(o.Empty(), "Must be empty");
 	for (const auto& order: expected)
@@ -119,8 +120,8 @@ void TestTop()
 		ASSERT_EQUAL(order, o.Get(id));
 	}
 	ASSERT_EQUAL(o.Size(), expected.size());
-	const auto& top = o.Top();
-	for (const auto& order : expected)
+	const auto& top = o.Top(n);
+	for (const auto& order: expected)
 	{
 		auto it = std::find(top.begin(), top.end(), order);
 		ASSERT(it != top.end(), "Top must contain expected value");
