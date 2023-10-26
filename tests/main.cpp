@@ -48,13 +48,13 @@ void TestBasic()
 	ASSERT(o.Empty(), "Must be empty");
 }
 
-
 namespace bench
 {
 	OrderBookPtr global_bench;
 
 	template<typename OrderBookType>
-	void SetUpGlobalBench() {
+	void SetUpGlobalBench()
+	{
 		global_bench = MakeOrderBook<OrderBookType>();
 	}
 
@@ -85,7 +85,8 @@ namespace bench
 template<typename OrderBookType>
 class Tester {
 public:
-	Tester() {
+	Tester()
+	{
 		bench::SetUpGlobalBench<OrderBookType>();
 	}
 
@@ -121,16 +122,8 @@ private:
 
 int main()
 {
-//	{
-//		std::cerr << "UNLIMITED ORDER BOOK: (TASK-1)" << std::endl;
-//		Tester<OrderBook> t;
-//		t.Run();
-//	}
-
-	{
-		std::cerr << "LIMITED ORDER BOOK: (TASK-3)" << std::endl;
-		Tester<LimitedOrderBook> t;
-		t.Run();
-	}
+	std::cerr << "UNLIMITED ORDER BOOK: (TASK-1)" << std::endl;
+	Tester<OrderBook> t; // Change type here
+	t.Run();
 	return 0;
 }

@@ -22,7 +22,7 @@ void Benchmark(BenchFunc bf, std::uint64_t& result)
 }
 
 template<typename BenchFunc>
-std::uint64_t Average(BenchFunc foo, std::uint64_t iter = 100)
+std::uint64_t Average(BenchFunc foo, std::uint64_t iter = 100'000)
 {
 	std::uint64_t total_ns = 0;
 	for (std::uint64_t i = 0; i < iter; i++)
