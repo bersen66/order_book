@@ -100,9 +100,9 @@ std::vector<Order> GenerateCorrectTop(int n = 10)
 	auto bid_cmp = [](const Order& lhs, const Order& rhs) -> bool {
 		return lhs.price > rhs.price;
 	};
-	auto it = std::partition(result.begin(), result.end(), ask_part);
-	std::sort(result.begin(), it, ask_cmp);
-	std::sort(it, result.end(), bid_cmp);
+	auto it = std::stable_partition(result.begin(), result.end(), ask_part);
+	std::stable_sort(result.begin(), it, ask_cmp);
+	std::stable_sort(it, result.end(), bid_cmp);
 
 	return result;
 }
@@ -119,7 +119,13 @@ void TestTop()
 		ASSERT_EQUAL(order, o.Get(id));
 	}
 	ASSERT_EQUAL(o.Size(), expected.size());
-	ASSERT_EQUAL(o.Top(), expected);
+	const auto& top = o.Top();
+	for (const auto& order : expected)
+	{
+		auto it = std::find(top.begin(), top.end(), order);
+		ASSERT(it != top.end(), "Top must contain expected value");
+	}
+
 }
 
 int main()

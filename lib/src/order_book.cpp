@@ -51,33 +51,47 @@ void OrderBook::EraseFromMap(OrderBook::OrderListIter it)
 
 	if (it->type == Order::Type::BID)
 	{
-		bid_[prev_price].erase(it);
-		if (bid_[prev_price].empty())
-		{
-			bid_.erase(prev_price);
-		}
+		DoErase(bid_, prev_price, it);
 	}
 	else
 	{
-		ask_[prev_price].erase(it);
-		if (ask_[prev_price].empty())
-		{
-			ask_.erase(prev_price);
-		}
+		DoErase(ask_, prev_price, it);
 	}
 
 }
 
-const std::map<Currency, OrderBook::OrderList, std::greater<Currency>>&
+const std::map<Currency, OrderBook::OrderList, std::greater<>>&
 OrderBook::Bids() const
 {
 	return bid_;
 }
 
-const std::map<Currency, OrderBook::OrderList, std::less<Currency>>&
+const std::map<Currency, OrderBook::OrderList, std::less<>>&
 OrderBook::Asks() const
 {
 	return ask_;
+}
+
+template<
+		typename K,
+		typename V,
+		typename Cmp,
+		template<typename, typename, typename> class Map>
+void AppendN(const Map<K, V, Cmp>& src, int n, std::vector<Order>& result)
+{
+	std::uint64_t cnt = 0;
+	for (const auto& [_, orders]: src)
+	{
+		for (const auto& o: orders)
+		{
+			result.push_back(o);
+			cnt++;
+			if (cnt == n)
+			{
+				return;
+			}
+		}
+	}
 }
 
 std::vector<Order> OrderBook::Top(int n) const
@@ -85,36 +99,9 @@ std::vector<Order> OrderBook::Top(int n) const
 	std::vector<Order> result;
 	result.reserve(n);
 
-	int cnt = 0;
-	for (const auto& [p, orders]: ask_)
-	{
-		for (const auto& o: orders)
-		{
-			result.push_back(o);
-			cnt++;
-			if (cnt == n / 2)
-			{
-				goto ENDLOOP1;
-			}
-		}
-	}
-ENDLOOP1:
-	std::reverse(result.begin(), result.begin() + cnt);
-
-	cnt = 0;
-	for (const auto& [p, orders]: bid_)
-	{
-		for (const auto& o: orders)
-		{
-			result.push_back(o);
-			cnt++;
-			if (cnt == n / 2)
-			{
-				goto ENDLOOP2;
-			}
-		}
-	}
-ENDLOOP2:
+	AppendN(ask_, n / 2, result);
+	std::reverse(result.begin(), result.end());
+	AppendN(bid_, n / 2, result);
 
 	return result; // NRVO
 }
