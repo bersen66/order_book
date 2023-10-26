@@ -1,19 +1,19 @@
 #include <algorithm>
-#include "orders/order_book.hpp"
+#include "orders/unlimited_order_book.hpp"
 
-OrderBook::OrderBook()
+UnlimitedOrderBook::UnlimitedOrderBook()
 {
 	resolver_.reserve(812);
 }
 
-OrderId OrderBook::Insert(const Order& o)
+OrderId UnlimitedOrderBook::Insert(const Order& o)
 {
 	OrderId id = GenerateID(o);
 	resolver_[id] = InsertIntoTable(o);
 	return id;
 }
 
-void OrderBook::Update(OrderId id, const Order& updated)
+void UnlimitedOrderBook::Update(OrderId id, const Order& updated)
 {
 	OrderListIter it = resolver_.at(id);
 	if (updated.price == it->price && updated.type == it->type)
@@ -26,18 +26,19 @@ void OrderBook::Update(OrderId id, const Order& updated)
 	resolver_[id] = InsertIntoTable(updated);
 }
 
-const Order& OrderBook::Get(OrderId id) const
+const Order& UnlimitedOrderBook::Get(OrderId id) const
 {
 	return *resolver_.at(id);
 }
 
-void OrderBook::Erase(OrderId id)
+void UnlimitedOrderBook::Erase(OrderId id)
 {
 	EraseFromMap(resolver_.at(id));
 	resolver_.erase(id);
 }
 
-inline OrderBook::OrderListIter OrderBook::InsertIntoTable(const Order& o)
+inline UnlimitedOrderBook::OrderListIter
+UnlimitedOrderBook::InsertIntoTable(const Order& o)
 {
 	OrderList& orders = (o.type == Order::Type::BID ? bid_[o.price]
 	                                                : ask_[o.price]);
@@ -45,7 +46,7 @@ inline OrderBook::OrderListIter OrderBook::InsertIntoTable(const Order& o)
 	return std::prev(orders.end());
 }
 
-void OrderBook::EraseFromMap(OrderBook::OrderListIter it)
+void UnlimitedOrderBook::EraseFromMap(UnlimitedOrderBook::OrderListIter it)
 {
 	Currency prev_price = it->price;
 
@@ -60,14 +61,14 @@ void OrderBook::EraseFromMap(OrderBook::OrderListIter it)
 
 }
 
-const std::map<Currency, OrderBook::OrderList, std::greater<>>&
-OrderBook::Bids() const
+const std::map<Currency, UnlimitedOrderBook::OrderList, std::greater<>>&
+UnlimitedOrderBook::Bids() const
 {
 	return bid_;
 }
 
-const std::map<Currency, OrderBook::OrderList, std::less<>>&
-OrderBook::Asks() const
+const std::map<Currency, UnlimitedOrderBook::OrderList, std::less<>>&
+UnlimitedOrderBook::Asks() const
 {
 	return ask_;
 }
@@ -94,7 +95,7 @@ void AppendN(const Map<K, V, Cmp>& src, int n, std::vector<Order>& result)
 	}
 }
 
-std::vector<Order> OrderBook::Top(int n) const
+std::vector<Order> UnlimitedOrderBook::Top(int n) const
 {
 	std::vector<Order> result;
 	result.reserve(n);
@@ -106,17 +107,17 @@ std::vector<Order> OrderBook::Top(int n) const
 	return result; // NRVO
 }
 
-bool OrderBook::Empty() const noexcept
+bool UnlimitedOrderBook::Empty() const noexcept
 {
 	return bid_.empty() && ask_.empty() && resolver_.empty();
 }
 
-std::size_t OrderBook::Size() const noexcept
+std::size_t UnlimitedOrderBook::Size() const noexcept
 {
 	return resolver_.size();
 }
 
-bool OrderBook::Contains(OrderId id) const
+bool UnlimitedOrderBook::Contains(OrderId id) const
 {
 	return resolver_.find(id) != resolver_.end();
 }

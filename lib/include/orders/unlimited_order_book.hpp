@@ -1,45 +1,45 @@
 #pragma once
 
-
 #include <orders/order.hpp>
+#include <orders/iorder_book.hpp>
 #include <map>
 #include <list>
 #include <unordered_map>
 #include <vector>
 
-class OrderBook {
+class UnlimitedOrderBook final : public IOrderBook {
 private:
 	using OrderList = std::list<Order>;
 	using OrderListIter = std::list<Order>::iterator;
 public:
 
-	OrderBook();
+	UnlimitedOrderBook();
 
-	OrderBook(OrderBook&& other) = default;
+	UnlimitedOrderBook(UnlimitedOrderBook&& other) = default;
 
-	OrderBook(const OrderBook&) = delete;
+	UnlimitedOrderBook(const UnlimitedOrderBook&) = delete;
 
-	OrderBook& operator=(const OrderBook&) = delete;
+	UnlimitedOrderBook& operator=(const UnlimitedOrderBook&) = delete;
 
-	OrderId Insert(const Order& o);
+	OrderId Insert(const Order& o) override;
 
-	void Update(OrderId id, const Order& updated);
+	void Update(OrderId id, const Order& updated) override;
 
-	const Order& Get(OrderId id) const;
+	const Order& Get(OrderId id) const override;
 
-	void Erase(OrderId id);
+	void Erase(OrderId id) override;
 
-	std::vector<Order> Top(int n = 10) const;
+	std::vector<Order> Top(int n) const override;
+
+	[[nodiscard]] bool Empty() const noexcept override;
+
+	std::size_t Size() const noexcept override;
+
+	bool Contains(OrderId id) const override;
 
 	const std::map<Currency, OrderList, std::greater<>>& Bids() const;
 
 	const std::map<Currency, OrderList, std::less<>>& Asks() const;
-
-	[[nodiscard]] bool Empty() const noexcept;
-
-	std::size_t Size() const noexcept;
-
-	bool Contains(OrderId id) const;
 
 private:
 	inline OrderListIter InsertIntoTable(const Order& o);

@@ -2,8 +2,9 @@ include_directories(include)
 
 set(
     SOURCES
-    src/order_book.cpp
     src/order.cpp
+    src/unlimited_order_book.cpp
+    src/limited_order_book.cpp
 )
 
 add_library(orders ${SOURCES})
