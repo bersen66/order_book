@@ -7,6 +7,8 @@
 #include <unordered_map>
 #include <list>
 
+#include <orders/order.hpp>
+
 template<
 		typename Key,
 		typename Value,
@@ -74,3 +76,11 @@ std::ostream& operator<<(std::ostream& os, const std::unordered_map<K, V>& m)
 {
 	return PrintMap(os, m);
 }
+
+Order RandomOrder();
+
+Order RandomBid();
+
+Order RandomAsk();
+
+std::vector<Order> GenerateCorrectTop(int n = 10);
