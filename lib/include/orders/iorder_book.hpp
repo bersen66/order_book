@@ -24,10 +24,10 @@ struct IOrderBook {
 	virtual ~IOrderBook() = default;
 };
 
-using OrderBookPtr = std::unique_ptr<IOrderBook>;
+using OrderBookPtr = std::shared_ptr<IOrderBook>;
 
 template<typename OrderBookT, typename... Args>
 OrderBookPtr MakeOrderBook(Args&& ... args)
 {
-	return std::make_unique<OrderBookT>(std::forward<Args>(args)...);
+	return std::make_shared<OrderBookT>(std::forward<Args>(args)...);
 }

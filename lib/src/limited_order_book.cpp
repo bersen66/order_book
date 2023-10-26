@@ -56,15 +56,18 @@ OrderId LimitedOrderBook::Insert(const Order& o)
 
 void LimitedOrderBook::Update(OrderId id, const Order& updated)
 {
+	if (contained_.count(id) == 0) {
+		throw std::runtime_error("Invalid id");
+	}
 	auto [it, cont] = Locate(id);
 	cont.erase(it);
 
-	static constexpr auto ask_cmp =
+	 auto ask_cmp =
 			[](const OrderWrapper& lhs, const OrderWrapper& rhs) {
 				return std::tie(lhs.order.price, lhs.order.amount)
 				       < std::tie(rhs.order.price, rhs.order.amount);
 			};
-	static constexpr auto bid_cmp =
+	auto bid_cmp =
 			[](const OrderWrapper& lhs, const OrderWrapper& rhs) {
 				return std::tie(lhs.order.price, lhs.order.amount)
 				       > std::tie(rhs.order.price, rhs.order.amount);
