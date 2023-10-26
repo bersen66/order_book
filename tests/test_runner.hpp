@@ -35,7 +35,7 @@ public:
 	~TestRunner();
 
 private:
-	std::uint64_t tests_failed;
+	std::uint64_t tests_failed = 0;
 };
 
 template<class T, class U>
@@ -69,12 +69,6 @@ inline void Assert(bool b, const std::string& hint) {
   AssertEqual(x, y, __assert_equal_private_os.str()); \
 }
 
-//#define ASSERT(x) {                           \
-//  std::ostringstream __assert_private_os;     \
-//  __assert_private_os << #x << " is false, "  \
-//    << FILE_NAME << ":" << __LINE__;          \
-//  Assert(x, __assert_private_os.str());       \
-//}
 
 #define ASSERT(x, msg) { \
   std::ostringstream __assert_private_os;     \

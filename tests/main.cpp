@@ -1,65 +1,40 @@
 #include <random>
 #include <algorithm>
 
-#include <orders/order_book.hpp>
+#include <orders/orders.hpp>
 
 #include "profiler.hpp"
+#include "test_utils.hpp"
 #include "test_runner.hpp"
 
 
-std::random_device rd;
-std::mt19937 rng(rd());
-std::uniform_int_distribution<std::uint64_t> uni(0, 100);
-
-Order RandomOrder()
+template<typename OrderBookType>
+void TestTop()
 {
-	Order result{};
-	result.type = uni(rng) % 2 ? Order::Type::BID : Order::Type::ASK;
-	result.price = uni(rng);
-	result.amount = uni(rng);
-	return result;
+	int n = 10;
+	auto expected = GenerateCorrectTop(n);
+	OrderBookType o;
+	ASSERT(o.Empty(), "Must be empty");
+	for (const auto& order: expected)
+	{
+		OrderId id = o.Insert(order);
+		ASSERT(o.Contains(id), "OrderBook must contain order");
+		ASSERT_EQUAL(order, o.Get(id));
+	}
+	ASSERT_EQUAL(o.Size(), expected.size());
+	const auto& top = o.Top(n);
+	for (const auto& order: expected)
+	{
+		auto it = std::find(top.begin(), top.end(), order);
+		ASSERT(it != top.end(), "Top must contain expected value");
+	}
+
 }
 
-Order RandomBid()
-{
-	auto res = RandomOrder();
-	res.type = Order::Type::BID;
-	return res;
-}
-
-Order RandomAsk()
-{
-	auto res = RandomOrder();
-	res.type = Order::Type::ASK;
-	return res;
-}
-
-OrderBook ob;
-void InsertBenchmark()
-{
-	ob.Insert(RandomOrder());
-}
-
-void EraseBenchmark()
-{
-	static OrderId id = 0;
-	ob.Erase(id++);
-}
-
-void UpdateBenchmark()
-{
-	static OrderId id = 0;
-	ob.Update(id++, RandomOrder());
-}
-
-void TopBenchmark()
-{
-	ob.Top(10);
-}
-
+template<typename OrderBookType>
 void TestBasic()
 {
-	OrderBook o;
+	OrderBookType o;
 	ASSERT(o.Empty(), "Must be empty");
 	auto order = RandomOrder();
 	OrderId id = o.Insert(order);
@@ -73,69 +48,82 @@ void TestBasic()
 	ASSERT(o.Empty(), "Must be empty");
 }
 
-std::vector<Order> GenerateCorrectTop(int n = 10)
+namespace bench
 {
-	std::vector<Order> result;
-	result.reserve(n);
+	OrderBookPtr global_bench;
 
-	for (int i = 0; i < n; ++i)
+	template<typename OrderBookType>
+	void SetUpGlobalBench()
 	{
-		if (i < n / 2)
-		{
-			result.push_back(RandomAsk());
-		}
-		else
-		{
-			result.push_back(RandomBid());
-		}
-
+		global_bench = MakeOrderBook<OrderBookType>();
 	}
 
-	auto ask_part = [](const Order& o) -> bool {
-		return o.type == Order::Type::ASK;
-	};
-	auto ask_cmp = [](const Order& lhs, const Order& rhs) -> bool {
-		return lhs.price > rhs.price;
-	};
-	auto bid_cmp = [](const Order& lhs, const Order& rhs) -> bool {
-		return lhs.price > rhs.price;
-	};
-	auto it = std::partition(result.begin(), result.end(), ask_part);
-	std::sort(result.begin(), it, ask_cmp);
-	std::sort(it, result.end(), bid_cmp);
-
-	return result;
-}
-
-void TestTop()
-{
-	auto expected = GenerateCorrectTop(10);
-	OrderBook o;
-	ASSERT(o.Empty(), "Must be empty");
-	for (const auto& order: expected)
+	void InsertBenchmark()
 	{
-		auto id = o.Insert(order);
-		ASSERT(o.Contains(id), "OrderBook must contain order");
-		ASSERT_EQUAL(order, o.Get(id));
+		global_bench->Insert(RandomOrder());
 	}
-	ASSERT_EQUAL(o.Size(), expected.size());
-	ASSERT_EQUAL(o.Top(), expected);
-}
+
+	void EraseBenchmark()
+	{
+		static OrderId id = 0;
+		global_bench->Erase(id++);
+	}
+
+	void UpdateBenchmark()
+	{
+		static OrderId id = 0;
+		global_bench->Update(id++, RandomOrder());
+	}
+
+	void TopBenchmark()
+	{
+		global_bench->Top(10);
+	}
+
+} // namespace bench
+
+template<typename OrderBookType>
+class Tester {
+public:
+	Tester()
+	{
+		bench::SetUpGlobalBench<OrderBookType>();
+	}
+
+	void Test()
+	{
+		RUN_TEST(tr_, TestBasic<OrderBookType>);
+		RUN_TEST(tr_, TestTop<OrderBookType>);
+	}
+
+	void Benchmark()
+	{
+		RUN_BENCHMARK(RandomOrder)
+		bench::global_bench = MakeOrderBook<OrderBookType>();
+		RUN_BENCHMARK(bench::InsertBenchmark);
+		RUN_BENCHMARK(bench::UpdateBenchmark);
+		RUN_BENCHMARK(bench::TopBenchmark);
+		RUN_BENCHMARK(bench::EraseBenchmark);
+		std::cerr << std::endl;
+	}
+
+	void Run()
+	{
+		std::cerr << "Benchmarks:" << std::endl;
+		Benchmark();
+		std::cerr << "Tests:" << std::endl;
+		Test();
+		std::cerr << std::endl;
+	}
+
+private:
+	TestRunner tr_;
+};
 
 int main()
 {
-	std::cerr << "Benchmarks:" << std::endl;
-	RUN_BENCHMARK(RandomOrder)
-	RUN_BENCHMARK(InsertBenchmark);
-	RUN_BENCHMARK(UpdateBenchmark);
-	RUN_BENCHMARK(TopBenchmark);
-	RUN_BENCHMARK(EraseBenchmark);
-	std::cerr << std::endl;
-
-	std::cerr << "Tests:" << std::endl;
-
-	TestRunner tr{};
-	RUN_TEST(tr, TestBasic);
-	RUN_TEST(tr, TestTop);
+	std::cerr << "UNLIMITED ORDER BOOK: (TASK-1)" << std::endl;
+	Tester<OrderBook> t; // Change type here
+	t.Run();
 	return 0;
 }
