@@ -61,12 +61,12 @@ private:
 
 	std::pair<
 			std::vector<OrderWrapper>::const_iterator,
-			const std::vector<OrderWrapper>>
+			const std::vector<OrderWrapper>*>
 	Locate(OrderId id) const;
 
 	std::pair<
 			std::vector<OrderWrapper>::iterator,
-			std::vector<OrderWrapper>>
+			std::vector<OrderWrapper>*>
 	Locate(OrderId id);
 
 	friend void AppendN(std::vector<Order>& dest,

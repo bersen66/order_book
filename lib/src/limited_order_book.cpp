@@ -60,7 +60,7 @@ void LimitedOrderBook::Update(OrderId id, const Order& updated)
 		throw std::runtime_error("Invalid id");
 	}
 	auto [it, cont] = Locate(id);
-	cont.erase(it);
+	cont->erase(it);
 
 	 auto ask_cmp =
 			[](const OrderWrapper& lhs, const OrderWrapper& rhs) {
@@ -91,7 +91,7 @@ void LimitedOrderBook::Update(OrderId id, const Order& updated)
 void LimitedOrderBook::Erase(OrderId id)
 {
 	auto [it, cont] = Locate(id);
-	cont.erase(it);
+	cont->erase(it);
 	contained_.erase(id);
 }
 
@@ -125,7 +125,7 @@ std::vector<Order> LimitedOrderBook::Top(int n) const
 
 const Order& LimitedOrderBook::Get(OrderId id) const
 {
-	auto [it, cont] = Locate(id);
+	const auto& [it, cont] = Locate(id);
 	return it->order;
 }
 
@@ -169,7 +169,7 @@ LimitedOrderBook::IteratorToWrapper(
 
 std::pair<
 		std::vector<LimitedOrderBook::OrderWrapper>::const_iterator,
-		const std::vector<LimitedOrderBook::OrderWrapper>>
+		const std::vector<LimitedOrderBook::OrderWrapper>*>
 LimitedOrderBook::Locate(OrderId id) const
 {
 	if (!Contains(id))
@@ -179,12 +179,12 @@ LimitedOrderBook::Locate(OrderId id) const
 
 	const auto& cont = (contained_.at(id) == Order::Type::BID) ? bid_ : ask_;
 	auto it = ConstIteratorToWrapper(cont, id);
-	return std::make_pair(it, cont);
+	return std::make_pair(it, &cont);
 }
 
 std::pair<
 		std::vector<LimitedOrderBook::OrderWrapper>::iterator,
-		std::vector<LimitedOrderBook::OrderWrapper>>
+		std::vector<LimitedOrderBook::OrderWrapper>*>
 LimitedOrderBook::Locate(OrderId id)
 {
 	if (!Contains(id))
@@ -194,7 +194,7 @@ LimitedOrderBook::Locate(OrderId id)
 
 	auto& cont = (contained_.at(id) == Order::Type::BID) ? bid_ : ask_;
 	auto it = IteratorToWrapper(cont, id);
-	return std::make_pair(it, cont);
+	return std::make_pair(it, &cont);
 }
 
 
