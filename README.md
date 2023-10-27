@@ -70,7 +70,6 @@ TestTop<OrderBookType> OK. Test time: 33803 ns.
 > LimitedOrderBook
 
 Для LimitedOrderBook (среднее время на 1000 итераций):
-В решении упоминалось, что подобный алгоритм не является самым эффективным.
 
 ```
 UNLIMITED ORDER BOOK: (TASK-3)
@@ -85,6 +84,8 @@ Tests:
 TestBasic<OrderBookType> OK. Test time: 50655 ns.
 TestTop<OrderBookType> OK. Test time: 33563 ns.
 ```
+
+В решении упоминалось, что подобный алгоритм не является самым эффективным.
 
 При добавлении большого количества заявок, превосходящим лимит стакана, могут
 начаться реаллокации, влияющие на производительность.
