@@ -36,7 +36,7 @@ target_link_libraries(${PROJECT_NAME} orders) # JUST LINK LIBRARY
 
 > UnlimitedOrderBook
 
-Для LimitedOrderBook (среднее время на 100'000 итераций):
+Для UnlimitedOrderBook (среднее время на 100'000 итераций):
 В ходе замера каждая операция исполнялась 100'000 раз, и высчитывалось время на
 каждой. Затем бралось среднее значение. Именно оно и является результатом.
 
