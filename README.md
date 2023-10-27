@@ -34,9 +34,8 @@ target_link_libraries(${PROJECT_NAME} orders) # JUST LINK LIBRARY
 
 Сборка осуществлялась на ```g++``` в ```Release``` режиме.
 
-> UnlimitedOrderBook
+## Для UnlimitedOrderBook (среднее время на 100'000 итераций):
 
-Для UnlimitedOrderBook (среднее время на 100'000 итераций):
 В ходе замера каждая операция исполнялась 100'000 раз, и высчитывалось время на
 каждой. Затем бралось среднее значение. Именно оно и является результатом.
 
@@ -67,9 +66,7 @@ TestTop<OrderBookType> OK. Test time: 33803 ns.
 методов, так как мы замеряем время работы
 всего теста.
 
-> LimitedOrderBook
-
-Для LimitedOrderBook (среднее время на 1000 итераций):
+## Для LimitedOrderBook (среднее время на 1000 итераций):
 
 ```
 UNLIMITED ORDER BOOK: (TASK-3)
