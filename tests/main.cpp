@@ -6,6 +6,7 @@
 #include "profiler.hpp"
 #include "test_utils.hpp"
 #include "test_runner.hpp"
+#include "test_unique_ob.hpp"
 
 
 template<typename OrderBookType>
@@ -28,7 +29,6 @@ void TestTop()
 		auto it = std::find(top.begin(), top.end(), order);
 		ASSERT(it != top.end(), "Top must contain expected value");
 	}
-
 }
 
 template<typename OrderBookType>
@@ -120,10 +120,15 @@ private:
 	TestRunner tr_;
 };
 
+
 int main()
 {
+
 	std::cerr << "UNLIMITED ORDER BOOK: (TASK-1)" << std::endl;
-	Tester<OrderBook> t; // Change type here
+	Tester<UnlimitedOrderBook> t; // Change type here
 	t.Run();
+
+	std::cerr << "UNIQUE ORDER BOOK:" << std::endl;
+	TestUniqueOb();
 	return 0;
 }

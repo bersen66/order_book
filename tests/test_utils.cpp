@@ -6,7 +6,7 @@
 
 std::random_device rd;
 std::mt19937 rng(rd());
-std::uniform_int_distribution<std::uint64_t> uni(0, 100);
+std::uniform_int_distribution<std::uint64_t> uni(0, 10'000);
 
 Order RandomOrder()
 {

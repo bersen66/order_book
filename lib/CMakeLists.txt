@@ -5,6 +5,7 @@ set(
     src/order.cpp
     src/unlimited_order_book.cpp
     src/limited_order_book.cpp
+    src/unique_order_book.cpp
 )
 
 add_library(orders ${SOURCES})
