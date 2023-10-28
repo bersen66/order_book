@@ -4,6 +4,7 @@ set(
     profiler.cpp
     test_runner.cpp
     test_utils.cpp
+    test_unique_ob.cpp
 )
 
 add_executable(ortests ${SOURCES})
