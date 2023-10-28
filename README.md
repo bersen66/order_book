@@ -20,7 +20,7 @@ include(FetchContent)
 FetchContent_Declare(
         orders
         GIT_REPOSITORY https://github.com/bersen66/order_book.git
-        GIT_TAG v1.0.0
+        GIT_TAG v1.1.0
 )
 
 FetchContent_MakeAvailable(orders)
