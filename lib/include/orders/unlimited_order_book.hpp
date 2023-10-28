@@ -49,8 +49,9 @@ private:
 	template<typename K,
 			typename V,
 			typename Cmp,
-			template<typename, typename, typename> class Map>
-	void DoErase(Map<K, V, Cmp>& map, Currency prev_price, OrderListIter it)
+			typename Allocator,
+			template<typename, typename, typename, typename> class Map>
+	void DoErase(Map<K, V, Cmp, Allocator>& map, Currency prev_price, OrderListIter it)
 	{
 		map[prev_price].erase(it);
 		if (map[prev_price].empty())

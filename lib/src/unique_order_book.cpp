@@ -69,8 +69,9 @@ template<
 		typename K,
 		typename V,
 		typename Cmp,
-		template<typename, typename, typename> class Map>
-void AppendN(const Map<K, V, Cmp>& src, int n, std::vector<Order>& result)
+		typename Allocator,
+		template<typename, typename, typename, typename > class Map>
+void AppendN(const Map<K, V, Cmp, Allocator>& src, int n, std::vector<Order>& result)
 {
 	std::uint64_t cnt = 0;
 	for (const auto& [price, amount]: src)
