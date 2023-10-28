@@ -5,29 +5,6 @@
 #include <orders/order.hpp>
 
 class UniqueOrderBook {
-	template<
-			Order::Type type,
-			typename Key,
-			typename Value,
-			typename Cmp,
-			typename Allocator,
-			template<typename, typename, typename, typename> class Map>
-	void
-	DoModify(Currency price, const Order& updated, Map<Key, Value, Cmp, Allocator>& map)
-	{
-		if (map.count(price) == 0)
-		{
-			return;
-		}
-
-		if (updated.type == type && price == updated.price)
-		{
-			map[price] = updated.price;
-			return;
-		}
-		map.erase(price);
-		Insert(updated);
-	}
 public:
 	using AskMap = std::map<Currency, Amount, std::less<>>;
 	using BidMap = std::map<Currency, Amount, std::greater<>>;
@@ -57,7 +34,30 @@ public:
 	[[nodiscard]] std::size_t Size() const noexcept;
 
 private:
+	template<
+			Order::Type type,
+			typename Key,
+			typename Value,
+			typename Cmp,
+			typename Allocator,
+			template<typename, typename, typename, typename> class Map>
+	void
+	DoModify(Currency price, const Order& updated,
+	         Map<Key, Value, Cmp, Allocator>& map)
+	{
+		if (map.count(price) == 0)
+		{
+			return;
+		}
 
+		if (updated.type == type && price == updated.price)
+		{
+			map[price] = updated.price;
+			return;
+		}
+		map.erase(price);
+		Insert(updated);
+	}
 
 private:
 	AskMap asks_;
