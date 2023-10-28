@@ -91,7 +91,7 @@ UOBTestTop OK. Test time: 13479 ns.
 результаты.
 
 Замеры скорости (Clang14):
-```
+```c++
 UNLIMITED ORDER BOOK:
 Benchmarks:
 Avg RandomOrder time: 1677 nanoseconds
@@ -144,7 +144,7 @@ LimitedOrderBook реализован на паре векторов. Этим �
 [Реализация класса](https://github.com/bersen66/order_book/blob/main/lib/src/limited_order_book.cpp)
 
 Замеры скорости(Clang14):
-```
+```c++
 LIMITED ORDER BOOK:
 Benchmarks:
 Avg RandomOrder time: 1807 nanoseconds
